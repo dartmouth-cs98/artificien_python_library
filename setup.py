@@ -14,7 +14,9 @@ setup(
             'requests',
             'boto3',
             'datetime',
-            'warrant'
+            'warrant',
+            'envs',
+            'python-jose',
         ],
         setup_requires=['pytest-runner'],
         tests_require=['pytest==4.4.1'],

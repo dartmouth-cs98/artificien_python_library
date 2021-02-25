@@ -1,4 +1,4 @@
-from constants import masterNode, region_name, userPoolId, clientId
+from .constants import masterNode, region_name, userPoolId, clientId
 
 import syft as sy
 from syft.serde import protobuf
@@ -23,11 +23,13 @@ import boto3
 from warrant import Cognito
 
 try:
-  ecs_client = boto3.client('ecs')
+  ecs_client = boto3.client('ecs', region_name=region_name)
 except BaseException as exe:
     print(exe)
 
 dynamodb = boto3.resource('dynamodb', region_name=region_name)
+
+os.environ['AWS_DEFAULT_REGION'] = region_name
 
 sy.make_hook(globals())
 hook.local_worker.framework = None  # force protobuf serialization for tensors
@@ -43,7 +45,7 @@ def get_my_purchased_datasets(password):
         u = Cognito(userPoolId, clientId, username=user_id)
         u.authenticate(password=password)
     except:
-        exit({"Error": "Failed to authenticate User"})
+        return {"Error": "Failed to authenticate User"}
 
     accessId = u.access_token
     # PyGrid masterNode address from constants.py
