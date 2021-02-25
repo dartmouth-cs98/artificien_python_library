@@ -10,18 +10,13 @@ from syft.execution.placeholder import PlaceHolder
 from syft.execution.translation import TranslationTarget
 from syft.grid.clients.model_centric_fl_client import ModelCentricFLClient
 from datetime import date
-import boto3
 
 import torch as th
-from torch import nn
 
 import os
 from websocket import create_connection
-import websockets
 import json
-import requests
 from requests.structures import CaseInsensitiveDict
-import binascii
 import time
 import requests
 import boto3
@@ -32,10 +27,7 @@ try:
 except BaseException as exe:
     print(exe)
 
-region_name = "us-east-1"
-
 dynamodb = boto3.resource('dynamodb', region_name=region_name)
-
 
 sy.make_hook(globals())
 hook.local_worker.framework = None  # force protobuf serialization for tensors
@@ -390,24 +382,3 @@ def check_hosted_model(name, version):
     pb.ParseFromString(req.content)
     plan_tfjs = protobuf.serde._unbufferize(hook.local_worker, pb)
     print(plan_tfjs.code)
-
-class LinearRegression(th.nn.Module):
-
-    def __init__(self):
-        super(LinearRegression, self).__init__()
-        self.linear = th.nn.Linear(3, 1)
-
-    def forward(self, x):
-        y_pred = self.linear(x)
-        return y_pred
-
-if __name__ == "__main__":
-    name = "perceptron"
-    dataset = "dataSetFive"
-    model = LinearRegression()
-    X = th.randn(1, 3)
-    y = nn.functional.one_hot(th.tensor([2]))
-    model_params, training_plan = def_training_plan(model, X, y, {"loss": mse_with_logits})
-    avg_plan = def_avg_plan(model_params)
-    send_model(name=name, dataset_id=dataset, version="0.1.0", batch_size=1, learning_rate=0.2, max_updates=10,
-               model_params=model_params, training_plan=training_plan, avg_plan=avg_plan, password="artificien1")

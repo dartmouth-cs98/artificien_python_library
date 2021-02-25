@@ -12,7 +12,10 @@ setup(
             'websocket-client==0.57.0',
             'torch',
             'requests',
-            'boto3'
+            'boto3',
+            'datetime',
+            'os',
+            'warrant'
         ],
         setup_requires=['pytest-runner'],
         tests_require=['pytest==4.4.1'],
