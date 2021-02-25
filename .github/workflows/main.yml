@@ -24,4 +24,4 @@ jobs:
         run: pip install wheel
         
       - name: Build package
-        run: python setup.py register sdist upload
+        run: python artificien_python_library/setup.py register sdist upload
