@@ -14,7 +14,6 @@ setup(
             'requests',
             'boto3',
             'datetime',
-            'os',
             'warrant'
         ],
         setup_requires=['pytest-runner'],
