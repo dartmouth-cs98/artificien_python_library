@@ -12,6 +12,7 @@ from syft.grid.clients.model_centric_fl_client import ModelCentricFLClient
 from datetime import date
 
 import torch as th
+from torch import nn
 
 import os
 from websocket import create_connection
@@ -214,7 +215,7 @@ def def_avg_plan(model_params, func=None):
     return avg_plan
 
 
-def artificien_connect(dataset_id, model_id, password):
+def artificien_connect(dataset_id, model_id, features, labels, password):
     """ Function to connect to artificien PyGrid node """
     #api authentication using cognito
     count = 0
@@ -232,11 +233,10 @@ def artificien_connect(dataset_id, model_id, password):
     headers = CaseInsensitiveDict()
     headers["Authorization"] = "Bearer " + accessId
     headers["Content-Type"] = "application/json"
-    node = {"dataset_id": dataset_id, "model_id": model_id}
+    node = {"dataset_id": dataset_id, "model_id": model_id, "features": features, "labels": labels}
     resp = requests.post(masterNodeAddy, headers=headers, json=node)
     resp = resp.json()
     print(resp)
-    #print(resp.get('status'))
     # ping masternode until the ready status is recieved (the node is deployed)
     while resp.get('status') != 'ready':
         count = count + 1
@@ -262,7 +262,7 @@ def artificien_connect(dataset_id, model_id, password):
     # return grid
     return grid
 
-def send_model(name, version, batch_size, learning_rate, max_updates, model_params, training_plan, avg_plan, dataset_id, password):
+def send_model(name, version, batch_size, learning_rate, max_updates, model_params, training_plan, avg_plan, dataset_id, features, labels, password):
     """ Function to send model to node """
 
     # Add username to the model name so as to avoid conflicts across users
@@ -281,7 +281,7 @@ def send_model(name, version, batch_size, learning_rate, max_updates, model_para
         }
     )
 
-    grid = artificien_connect(dataset_id, name, password)
+    grid = artificien_connect(dataset_id, name, features, labels, password)
 
     client_config = {
         "name": name,
@@ -321,66 +321,3 @@ def send_model(name, version, batch_size, learning_rate, max_updates, model_para
     )
 
     return print("Host response:", response)
-
-def sendWsMessage(data):
-    """ Helper function to make WS requests """
-
-    ws = create_connection('ws://' + gridAddress)
-
-    ws.send(json.dumps(data))
-    message = ws.recv()
-    return json.loads(message)
-
-
-def check_hosted_model(name, version):
-    
-    cycle_request = {
-        "type": "model-centric/cycle-request",
-        "data": {
-            "worker_id": auth_response['data']['worker_id'],
-            "model": name,
-        
-            "version": version,
-            "ping": 1,
-            "download": 10000,
-            "upload": 10000,
-        }
-    }
-    cycle_response = sendWsMessage(cycle_request)
-    print('Cycle response:', json.dumps(cycle_response, indent=2))
-
-    worker_id = auth_response['data']['worker_id']
-    request_key = cycle_response['data']['request_key']
-    model_id = cycle_response['data']['model_id'] 
-    training_plan_id = cycle_response['data']['plans']['training_plan']
-    
-    # Model
-    req = requests.get(f"http://{gridAddress}/model-centric/get-model?worker_id={worker_id}&request_key={request_key}&model_id={model_id}")
-    model_data = req.content
-    pb = StatePB()
-    pb.ParseFromString(req.content)
-    model_params_downloaded = protobuf.serde._unbufferize(hook.local_worker, pb)
-    print("Params shapes:", [p.shape for p in model_params_downloaded.tensors()])
-    
-    # Plan "list of ops"
-    req = requests.get(f"http://{gridAddress}/model-centric/get-plan?worker_id={worker_id}&request_key={request_key}&plan_id={training_plan_id}&receive_operations_as=list")
-    pb = PlanPB()
-    pb.ParseFromString(req.content)
-    plan_ops = protobuf.serde._unbufferize(hook.local_worker, pb)
-    print(plan_ops.code)
-    print(plan_ops.torchscript)
-    
-    # Plan "torchscript"
-    req = requests.get(f"http://{gridAddress}/model-centric/get-plan?worker_id={worker_id}&request_key={request_key}&plan_id={training_plan_id}&receive_operations_as=torchscript")
-    pb = PlanPB()
-    pb.ParseFromString(req.content)
-    plan_ts = protobuf.serde._unbufferize(hook.local_worker, pb)
-    print(plan_ts.code)
-    print(plan_ts.torchscript.code)
-    
-    # Plan "tfjs"
-    req = requests.get(f"http://{gridAddress}/model-centric/get-plan?worker_id={worker_id}&request_key={request_key}&plan_id={training_plan_id}&receive_operations_as=tfjs")
-    pb = PlanPB()
-    pb.ParseFromString(req.content)
-    plan_tfjs = protobuf.serde._unbufferize(hook.local_worker, pb)
-    print(plan_tfjs.code)
