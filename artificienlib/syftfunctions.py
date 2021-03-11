@@ -278,6 +278,9 @@ def send_model(name, version, batch_size, learning_rate, max_updates, model_para
             'date_submitted': str(date.today()),
             'owner_name': str(os.environ['JUPYTERHUB_USER']),
             'percent_complete': 0,
+            'devices_trained_this_cycle': 0,
+            'loss_this_cycle': -1,
+            'acc_this_cycle': -1 # will remain -1 unless accuracy is relevant to the use case
         }
     )
 
