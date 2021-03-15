@@ -29,11 +29,11 @@ Record the printed dataset_id of the dataset you'd like to use, you'll need it l
 
 ### Building a PyTorch Model
 
-The first step is specifying a standard PyTorch model of some input and output size. This process is no different than using standard PyTorch. Refer to PyTorch documentation for additional information, and to `model_lib.ipynb` in the `artificien_experimental` repository for an example.
+The second step is specifying a standard PyTorch model of some input and output size. This process is no different than using standard PyTorch. Refer to PyTorch documentation for additional information, and to `model_lib.ipynb` in the `artificien_experimental` repository for an example.
 
 ### Defining training plan
 
-Thes seconds step is defining a training plan. First, we must choose some dummy X and Y representative of our input and output parameters respectively. The `X` should be sample size 1 example of inputs, and `Y` the corresponding output. Such values, along with our pytorch model, are passed into our training plan definition. To compile the training plan with default loss function (softmax cross entropy and optimizer (naive stochaistic gradient descent), simply run: `def_training_plan(model, X, Y)`
+Thes third step is defining a training plan. First, we must choose some dummy X and Y representative of our input and output parameters respectively. The `X` should be sample size 1 example of inputs, and `Y` the corresponding output. Such values, along with our pytorch model, are passed into our training plan definition. To compile the training plan with default loss function (softmax cross entropy and optimizer (naive stochaistic gradient descent), simply run: `def_training_plan(model, X, Y)`
 
 Additional specifiers can be passed into the training plan definition via a dictionary that allow you to change the loss function and optimizer to whatever is suitable for your model. This is described bellow.
 
@@ -69,6 +69,8 @@ Lastly, we must send our model, training plan, and average plan to be trained. U
 
 ```
 from artificienlib import syftfunctions as sf
-sf.send_model(name="perceptron", version="0.3.0", batch_size=1, learning_rate=0.2, max_updates=10, model_params=model_params, training_plan=training_plan, avg_plan=avg_plan, `dataset_id`=dataset_id, `password`=cognito_password, 'features'=features, 'labels'=labels)
+sf.send_model(name="perceptron", version="0.3.0", batch_size=1, learning_rate=0.2, max_updates=10, model_params=model_params, 
+training_plan=training_plan, avg_plan=avg_plan, `dataset_id`=dataset_id, 
+`password`=cognito_password, 'features'=features, 'labels'=labels)
 ```
 
