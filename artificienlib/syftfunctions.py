@@ -1,4 +1,4 @@
-from .constants import masterNode, region_name, userPoolId, clientId
+from constants import masterNode, region_name, userPoolId, clientId
 
 import syft as sy
 from syft.serde import protobuf
@@ -46,7 +46,7 @@ def get_my_purchased_datasets(password):
         u = Cognito(userPoolId, clientId, username=user_id)
         u.authenticate(password=password)
     except:
-        return {"Error": "Failed to authenticate User"}
+        raise Exception("Error: Failed to authenticate User")
 
     accessId = u.access_token
     # PyGrid masterNode address from constants.py
@@ -57,7 +57,10 @@ def get_my_purchased_datasets(password):
     headers["Authorization"] = "Bearer " + accessId
     headers["Content-Type"] = "application/json"
     node = {"user_id": user_id}
-    resp = requests.post(masterNodeAddy, headers=headers, json=node)
+    try:
+        resp = requests.post(masterNodeAddy, headers=headers, json=node)
+    except:
+        raise Exception("Error: Failed to contact Artificien masternode API. Contact Artificien Support")
     resp = resp.json()
     print(resp)
     return
@@ -223,7 +226,7 @@ def artificien_connect(dataset_id, model_id, features, labels, password):
         u = Cognito(userPoolId, clientId, username=os.environ['JUPYTERHUB_USER'])
         u.authenticate(password=password)
     except:
-        exit({"Error": "Failed to authenticate User"})
+        raise Exception("Error : Failed to Cognito authenticate Jupyter User. Check your password.")
 
     accessId = u.access_token
     # PyGrid masterNode address from constants.py
@@ -234,16 +237,22 @@ def artificien_connect(dataset_id, model_id, features, labels, password):
     headers["Authorization"] = "Bearer " + accessId
     headers["Content-Type"] = "application/json"
     node = {"dataset_id": dataset_id, "model_id": model_id, "features": features, "labels": labels}
-    resp = requests.post(masterNodeAddy, headers=headers, json=node)
+    try:
+        resp = requests.post(masterNodeAddy, headers=headers, json=node)
+    except:
+        raise Exception("Error: Failed to contact Artificien masternode API. Contact Artificien Support")
+
     resp = resp.json()
-    print(resp)
     # ping masternode until the ready status is recieved (the node is deployed)
     while resp.get('status') != 'ready':
         count = count + 1
         if 'error' in resp:
-            exit({'error': 'failed to connect'})
+            raise Exception(resp)
         time.sleep(30)
-        resp = requests.post(masterNodeAddy, headers=headers, json=node)
+        try:
+            resp = requests.post(masterNodeAddy, headers=headers, json=node)
+        except:
+            raise Exception("Error: Failed to contact Artificien masternode API. Contact Artificien Support")
         resp = resp.json()
         print(resp.get('status'))
 
@@ -257,8 +266,11 @@ def artificien_connect(dataset_id, model_id, features, labels, password):
         time.sleep(180)
 
     # connect to grid
-    grid = ModelCentricFLClient(id=dataset_id, address=nodeURL, secure=False)
-    grid.connect()  # These name/version you use in worker
+    try:
+        grid = ModelCentricFLClient(id=dataset_id, address=nodeURL, secure=False)
+        grid.connect()  # These name/version you use in worker
+    except:
+        raise Exception("Error: Failed to connect to the Pygrid Node")
     # return grid
     return grid
 
@@ -269,20 +281,23 @@ def send_model(name, version, batch_size, learning_rate, max_updates, model_para
     name = name + '-' + version + '-' + os.environ['JUPYTERHUB_USER']
     table = dynamodb.Table('model_table')
 
-    table.put_item(
-        Item={
-            'model_id': name,
-            'active_status': 1,
-            'version': version,
-            'dataset': dataset_id,
-            'date_submitted': str(date.today()),
-            'owner_name': str(os.environ['JUPYTERHUB_USER']),
-            'percent_complete': 0,
-            'devices_trained_this_cycle': 0,
-            'loss_this_cycle': -1,
-            'acc_this_cycle': -1 # will remain -1 unless accuracy is relevant to the use case
-        }
-    )
+    try:
+        table.put_item(
+            Item={
+                'model_id': name,
+                'active_status': 1,
+                'version': version,
+                'dataset': dataset_id,
+                'date_submitted': str(date.today()),
+                'owner_name': str(os.environ['JUPYTERHUB_USER']),
+                'percent_complete': 0,
+                'devices_trained_this_cycle': 0,
+                'loss_this_cycle': -1,
+                'acc_this_cycle': -1 # will remain -1 unless accuracy is relevant to the use case
+            }
+        )
+    except:
+        return {"error": "failed to put to dynamodb"}
 
     grid = artificien_connect(dataset_id, name, features, labels, password)
 
@@ -315,13 +330,27 @@ def send_model(name, version, batch_size, learning_rate, max_updates, model_para
         ]
     )
 
-    response = grid.host_federated_training(
-        model=model_params_state,
-        client_plans={'training_plan': training_plan},
-        client_protocols={},
-        server_averaging_plan=avg_plan,
-        client_config=client_config,
-        server_config=server_config
-    )
+    try:
+        response = grid.host_federated_training(
+            model=model_params_state,
+            client_plans={'training_plan': training_plan},
+            client_protocols={},
+            server_averaging_plan=avg_plan,
+            client_config=client_config,
+            server_config=server_config
+        )
+    except:
+        #node hasn't been hit for a while, let's try again
+        try:
+            response = grid.host_federated_training(
+                model=model_params_state,
+                client_plans={'training_plan': training_plan},
+                client_protocols={},
+                server_averaging_plan=avg_plan,
+                client_config=client_config,
+                server_config=server_config
+            )
+        except:
+            raise Exception("Error: Failed to contact node")
 
     return print("Host response:", response)
