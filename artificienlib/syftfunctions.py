@@ -1,4 +1,4 @@
-from constants import masterNode, region_name, userPoolId, clientId
+from .constants import masterNode, region_name, userPoolId, clientId
 
 import syft as sy
 from syft.serde import protobuf
