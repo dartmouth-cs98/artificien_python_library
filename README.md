@@ -65,10 +65,10 @@ avg_plan = sf.def_avg_plan(model_params)
 
 ### Sending the Model
 
-Lastly, we must send our model, training plan, and average plan to be trained. Using the function `send_model` we must pass in the `name`, `version`, `batch_size`, `learning_rate`, `max_updates`, `model_params`, `training_plan`, `average_plan`, `dataset_id`, and `password`. An example call is as follows:
+Lastly, we must send our model, training plan, and average plan to be trained. Using the function `send_model` we must pass in the `name`, `version`, `batch_size`, `learning_rate`, `max_updates`, `model_params`, `training_plan`, `average_plan`, `dataset_id`, `features`,`labels` and `password`. An example call is as follows:
 
 ```
 from artificienlib import syftfunctions as sf
-sf.send_model(name="perceptron", version="0.3.0", batch_size=1, learning_rate=0.2, max_updates=10, model_params=model_params, training_plan=training_plan, avg_plan=avg_plan, `dataset_id`=dataset_id, `password`=cognito_password)
+sf.send_model(name="perceptron", version="0.3.0", batch_size=1, learning_rate=0.2, max_updates=10, model_params=model_params, training_plan=training_plan, avg_plan=avg_plan, `dataset_id`=dataset_id, `password`=cognito_password, 'features'=features, 'labels'=labels)
 ```
 
