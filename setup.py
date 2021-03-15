@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 setup(
         name='artificienlib',
         packages=find_packages(include=['artificienlib']),
-        version='0.1.2',
+        version='0.1.3',
         description='Library for artificien, abstracts federated learning processes',
         author='Jake Epstein',
         license='MIT',
