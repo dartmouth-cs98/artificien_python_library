@@ -305,7 +305,6 @@ def send_model(name, version, batch_size, learning_rate, max_updates, model_para
         "minimum_upload_speed": 0,
         "minimum_download_speed": 0,
         "iterative_plan": True,  # tells PyGrid that avg plan is executed per diff
-        "model_name": name  # not really supposed to go here, but allows PyGrid to get model name easily
     }
 
     model_params_state = State(
