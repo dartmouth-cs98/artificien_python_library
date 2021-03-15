@@ -1,4 +1,4 @@
-from .constants import masterNode, region_name, userPoolId, clientId
+from constants import masterNode, region_name, userPoolId, clientId
 
 import syft as sy
 from syft.serde import protobuf
@@ -265,7 +265,6 @@ def artificien_connect(dataset_id, model_id, features, labels, password):
         print("Your model's trainers are waking from a long slumber. This may be a few minutes")
         time.sleep(180)
 
-    # connect to grid
     try:
         grid = ModelCentricFLClient(id=dataset_id, address=nodeURL, secure=False)
         grid.connect()  # These name/version you use in worker
@@ -351,6 +350,6 @@ def send_model(name, version, batch_size, learning_rate, max_updates, model_para
                 server_config=server_config
             )
         except:
-            raise Exception("Error: Failed to contact node")
+            raise Exception("Error: You've already submitted a model with same name & version, Please Change")
 
     return print("Host response:", response)
