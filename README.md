@@ -1,6 +1,6 @@
 # Artificien Library
 
-This library enables the authenticated data scientist to build models for federated learning on the artificien platform and train them on specific datasets. The following is a basic use guide. For more step-by-step documentation, refer to the tutorials in the `artificien_experimental` repository under `deploymentExamples` folder
+This library enables the authenticated data scientist to build models for federated learning on the artificien platform and train them on specific datasets. The following is a basic use guide. For more step-by-step documentation, refer to the tutorials in the `artificien_experimental` repository under `deploymentExamples` folder. For security reasons, Artificien Library can currently only be run in Artificien's Jupyter Environment. Go to [Artificien](www.artificien.com) for more information.
 
 ## Installation
 
