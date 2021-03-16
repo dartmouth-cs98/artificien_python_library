@@ -23,9 +23,6 @@ import requests
 import boto3
 from warrant import Cognito
 
-import warnings
-warnings.filterwarnings('ignore')
-
 try:
     ecs_client = boto3.client('ecs', region_name=region_name)
 except BaseException as exe:
