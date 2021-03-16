@@ -1,6 +1,8 @@
 # Artificien Library
 
-This library enables the authenticated data scientist to build models for federated learning on the artificien platform and train them on specific datasets. The following is a basic use guide. For more step-by-step documentation, refer to the tutorials in the `artificien_experimental` repository under `deploymentExamples` folder. For security reasons, Artificien Library can currently only be run in Artificien's Jupyter Environment. Go to [Artificien](www.artificien.com) for more information.
+This documetation talks about how to use the Artificien Library, a custom python library that allows data scientists to train AI/ML models using the industry standard [Pytorch](https://pytorch.org/) and train them on the datasets they've purchased access to. This library enables the authenticated data scientist to build models for federated learning on the artificien platform and train them on specific datasets. The following is a basic use guide. For more step-by-step documentation, refer to the tutorials in the [Artificien Tutorials Repository](https://github.com/dartmouth-cs98/artificien_tutorials) or the Tutorials page on Artificien site. Note, for security reasons, Artificien Library can currently only be run in Artificien's Jupyter Environment. When you navigate [Artificien](www.artificien.com) to models and click "create new model", you'll be taken to the Artificien Jupyter platform. Here, you can develop your own custom models to train on datasets you've purchased in the marketplace.
+
+**Note when developing on the Artificien Jupyterhub, skip the installation step**
 
 ## Installation
 
@@ -8,7 +10,7 @@ Run `pip install artificienlib`
 
 ## Importation
 
-`artificienlib` can now be imported in a python file with the line `import artificienlib`
+`artificienlib` can now be imported in a python file or jupyter notebook with the line `import artificienlib`
 
 ## Building a Model
 
@@ -29,7 +31,7 @@ Record the printed dataset_id of the dataset you'd like to use, you'll need it l
 
 ### Building a PyTorch Model
 
-The second step is specifying a standard PyTorch model of some input and output size. This process is no different than using standard PyTorch. Refer to PyTorch documentation for additional information, and to `model_lib.ipynb` in the `artificien_experimental` repository for an example.
+The second step is specifying a standard PyTorch model of some input and output size. This process is no different than using standard PyTorch. When signed up with Artificien, within  Jupyterhub is a sample Refer to PyTorch documentation for additional information, and the [Artificien Tutorials Repository](https://github.com/dartmouth-cs98/artificien_tutorials) for an example.
 
 ### Defining training plan
 
