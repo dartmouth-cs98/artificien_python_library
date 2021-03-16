@@ -23,8 +23,11 @@ import requests
 import boto3
 from warrant import Cognito
 
+import warnings
+warnings.filterwarnings('ignore')
+
 try:
-  ecs_client = boto3.client('ecs', region_name=region_name)
+    ecs_client = boto3.client('ecs', region_name=region_name)
 except BaseException as exe:
     print(exe)
 
@@ -130,7 +133,7 @@ def set_model_params(module, params_list, start_param_idx=0):
     return param_idx
 
 
-def def_training_plan(model, X, y, plan_dict=None):
+def def_training_plan(model, X, y, batch_size, lr, plan_dict=None):
 
     """
     :param model: A model built in pytorch
@@ -190,8 +193,8 @@ def def_training_plan(model, X, y, plan_dict=None):
     
     # Create dummy input parameters to make the trace, build model
     model_params = [param.data for param in model.parameters()]  # raw tensors instead of nn.Parameter
-    lr = th.tensor([0.01])
-    batch_size = th.tensor([3.0])
+    lr = th.tensor([float(lr)])
+    batch_size = th.tensor([int(batch_size)])
     
     training_plan.build(X, y, batch_size, lr, model_params, trace_autograd=True)
     
@@ -273,7 +276,9 @@ def artificien_connect(dataset_id, model_id, features, labels, password):
     # return grid
     return grid
 
-def send_model(name, version, batch_size, learning_rate, max_updates, model_params, training_plan, avg_plan, dataset_id, features, labels, password):
+def send_model(password:str, name:str, version:str, dataset_id: str, min_workers:int, max_workers:int, num_cycles: int, 
+               batch_size:int, learning_rate:str, features:list, labels:list, model_params, training_plan,
+               avg_plan):
     """ Function to send model to node """
 
     # Add username to the model name so as to avoid conflicts across users
@@ -305,16 +310,16 @@ def send_model(name, version, batch_size, learning_rate, max_updates, model_para
         "version": version,
         "batch_size": batch_size,
         "lr": learning_rate,
-        "max_updates": max_updates  # custom syft.js option that limits number of training loops per worker
+        "max_updates": 10  # custom syft.js option that limits number of training loops per worker
     }
 
     server_config = {
-        "min_workers": 5,
-        "max_workers": 5,
+        "min_workers": min_workers,
+        "max_workers": max_workers,
         "pool_selection": "random",
-        "do_not_reuse_workers_until_cycle": 6,
-        "cycle_length": 28800,  # max cycle length in seconds
-        "num_cycles": 5,  # max number of cycles
+        "do_not_reuse_workers_until_cycle": 1,
+        "cycle_length": 600,  # max cycle length in seconds
+        "num_cycles": num_cycles,  # number of cycles
         "max_diffs": 1,  # number of diffs to collect before avg
         "minimum_upload_speed": 0,
         "minimum_download_speed": 0,
