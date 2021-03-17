@@ -101,4 +101,7 @@ sf.send_model(
     password=password
 )
 ```
+## Deployment
+
+Artificien python library is deployed using a github action. Upon new github release, a triggered action compiles the library and uploads it to pypi as artificienlib. Github actions are awesome!
 
