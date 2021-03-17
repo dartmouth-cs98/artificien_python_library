@@ -1,6 +1,6 @@
 # Artificien Library
 
-This documetation talks about how to use the Artificien Library, a custom python library that allows data scientists to train AI/ML models using the industry standard [Pytorch](https://pytorch.org/) and train them on the datasets they've purchased access to. This library enables the authenticated data scientist to build models for federated learning on the artificien platform and train them on specific datasets. The following is a basic use guide. For more step-by-step documentation, refer to the tutorials in the [Artificien Tutorials Repository](https://github.com/dartmouth-cs98/artificien_tutorials) or the Tutorials page on Artificien site. Note, for security reasons, Artificien Library can currently only be run in Artificien's Jupyter Environment. When you navigate [Artificien](www.artificien.com) to models and click "create new model", you'll be taken to the Artificien Jupyter platform. Here, you can develop your own custom models to train on datasets you've purchased in the marketplace.
+This documetation describes how to use the Artificien Library, a custom python library that allows data scientists to train AI/ML models using the industry standard [Pytorch](https://pytorch.org/) and train them on the datasets they've purchased access to. This library enables the authenticated data scientist to build models for federated learning on the artificien platform and train them on specific datasets. The following is a basic use guide. For more step-by-step documentation, refer to the tutorials in the [Artificien Tutorials Repository](https://github.com/dartmouth-cs98/artificien_tutorials) or the Tutorials page on Artificien site. Note, for security reasons, Artificien Library can currently only be run in Artificien's Jupyter Environment. When you navigate [Artificien](www.artificien.com) to models and click "create new model", you'll be taken to the Artificien Jupyter platform. Here, you can develop your own custom models to train on datasets you've purchased in the marketplace.
 
 **Note when developing on the Artificien Jupyterhub, skip the installation step**
 
@@ -18,7 +18,7 @@ Building a model using `artificienlib` is a 5-step process.
 
 ### Selecting a dataset
 
-The first step is selecting a dataset. You can build a model to train on any single dataset you've purchased access to. You can check what datasets you've purchased in your "datasets" page within the artificien web app, or programmatically.
+The first step is selecting a dataset. You can build a model to train on any single dataset you've purchased access to. You can check what datasets you've purchased in your "datasets" page within the artificien web app on your, or programmatically.
 
 To print available datasets programmatically with `artificienlib`, call:
 
@@ -31,7 +31,11 @@ Record the printed dataset_id of the dataset you'd like to use, you'll need it l
 
 ### Building a PyTorch Model
 
-The second step is specifying a standard PyTorch model of some input and output size. This process is no different than using standard PyTorch. When signed up with Artificien, within  Jupyterhub is a sample Refer to PyTorch documentation for additional information, and the [Artificien Tutorials Repository](https://github.com/dartmouth-cs98/artificien_tutorials) for an example.
+The second step is specifying a standard PyTorch model of some input and output size. This process is no different than using standard PyTorch.
+
+For every dataset on [artificien.com](www.artificien.com), we provide a sample dataset to demonstrate to you what the data on user devices will actually look like. Note that the sample dataset is entirely made-up data - the real data only ever exists on user devices, and it never goes anywhere else. We keep the user's privacy first and foremost. You can use this sample dataset to define what attributes you'd like to use in your model. Record the names of the attributes you'd like to use for features and for labels, and design your model accordingly. You can also use the sample dataset to validate your model is working properly before sending it for training.
+
+Refer to [PyTorch](https://pytorch.org/) documentation for additional information on model building, and the [Artificien Tutorials Repository](https://github.com/dartmouth-cs98/artificien_tutorials) for an example.
 
 ### Defining training plan
 
@@ -67,12 +71,34 @@ avg_plan = sf.def_avg_plan(model_params)
 
 ### Sending the Model
 
-Lastly, we must send our model, training plan, and average plan to be trained. Using the function `send_model` we must pass in the `name`, `version`, `batch_size`, `learning_rate`, `max_updates`, `model_params`, `training_plan`, `average_plan`, `dataset_id`, `features`,`labels` and `password`. An example call is as follows:
+Lastly, we must send our model, training plan, and average plan to be trained. Using the function `send_model` we must pass in the `name`, `dataset_id`, `version`, `min_workers`, `max_workers`, `num_cycles`, `batch_size`, `learning_rate`, `model_params`, `training_plan`, `average_plan`, `dataset_id`, `features`,`labels` and your Artificien `password`. An example call is as follows:
 
 ```
 from artificienlib import syftfunctions as sf
-sf.send_model(name="perceptron", version="0.3.0", batch_size=1, learning_rate=0.2, max_updates=10, model_params=model_params, 
-training_plan=training_plan, avg_plan=avg_plan, `dataset_id`=dataset_id, 
-`password`=cognito_password, 'features'=features, 'labels'=labels)
+sf.send_model(
+    
+    # Model Information
+    name=name, 
+    dataset_id=dataset, 
+    version=version, 
+    
+    # Determine what training should look like
+    min_workers=1,
+    max_workers=5,
+    num_cycles=5,
+
+
+    # Set the training and average plans
+    batch_size=1, 
+    learning_rate=0.2,
+    model_params=model_params,
+    features=feature_names, 
+    labels=label_names,
+    avg_plan=avg_plan,
+    training_plan=training_plan,
+    
+    # Authenticate
+    password=password
+)
 ```
 
